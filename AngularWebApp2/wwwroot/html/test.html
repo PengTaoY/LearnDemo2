@@ -1,0 +1,734 @@
+﻿<html>
+<head>
+    <meta http-equiv="content-type" content="text/html" charset="utf-8" />
+    <!--添加JS引用-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../angular/angular.min.js"></script>
+    <!--<script src="../angular/angular-ui-router.min.js"></script>-->
+    <!--<script src="../js/unit.js"></script>-->
+    <script src="../js/jquery-ui.min.js"></script>
+    <script src="../js/sortable.js"></script>
+    <script src="../angular/an.user.common.js"></script>
+    <script src="../angular/an.userCtrl.js"></script>
+    <script src="../angular/an.center.accountCtrl.js"></script>
+    <!--添加CSS引用-->
+    <link href="../css/center.style.css" rel="stylesheet" />
+    <link href="../css/iconfont.css" rel="stylesheet" />
+    <link href="../css/common.css" rel="stylesheet" />
+
+    <script>
+        var app = angular.module("Article", []);
+        app.controller("ArticleCtrl", function ($scope, $http, $rootScope, $filter, $stateParams, $timeout) {
+            $rootScope.isOpen.content = true;//是否展开判断
+            $rootScope.subNavFlag = 16; //导航是否选择判断
+            $scope.sortPage = false; //拖拽页面
+            $scope.viewPage = false; //预览页面
+            $scope.isUploadMain = false; //预览焦点图
+            $scope.articleData = {};//发布文章的数据
+            $scope.articleId = $stateParams.id; //文章id
+            $scope.isEdit = false;//是否是编辑文章
+            $scope.tip = {
+                myTipsList: [],//我的标签列表
+                tipsList: [],//我选择的标签列表
+                customTips: '',//自定义标签
+            }
+            //添加文章详情数据
+            $scope.article = [{
+                type: 'text', //类型 text,img,video
+                content: '', //正文内容
+                imgUrl: '', //图片url
+                videoUrl: '', //视频url
+            }]
+            //判断为空提示框是否显示
+            $scope.isDataEmpty = function (data, ele) {
+                if (!data) {
+                    $(ele).parents('.input-box').find('em').show();
+                } else {
+                    $(ele).parents('.input-box').find('em').hide();
+                }
+            }
+            var image_select, isEdit;
+            //上传焦点图
+            $scope.changeMainImg = function (ele, is_edit) {
+                var mainImg = ele.files[0]
+                debugger
+                if (!mainImg) {
+                    return false;
+                }
+                if (mainImg.type != "image/png" && mainImg.type != "image/jpeg" && mainImg.type != "image/jpg") {
+                    layer.msg("请上传png,jpeg,png格式图片");
+                    return false;
+                }
+                var index = layer.load(1, {
+                    shade: [0.1, '#fff'] //0.1透明度的白色背景
+                });
+
+                if (mainImg.size / 1024 > 10 * 1024) { //判断文件大小
+                    $(".typeimg").removeClass('hide')
+                    layer.open({
+                        type: 1,
+                        closeBtn: 0, //不显示关闭按钮
+                        shadeClose: true,//开启遮罩关闭
+                        move: false, //禁止拖拽
+                        content: $('#tipsImgSize'),
+                    });
+                    return false;
+                }
+                isEdit = is_edit;
+                layer.open({
+                    type: 1,
+                    closeBtn: 0, //不显示关闭按钮
+                    shadeClose: true,//开启遮罩关闭
+                    move: false, //禁止拖拽
+                    content: $('#editHeadImg')
+                });
+                var mySrc = getObjectURL(mainImg);
+                // $("#clickUpload").text("重新上传");
+                $("#picture,#img_big_preview").addClass("clear");
+                $("#avatar1").attr("src", mySrc);
+                $("#avatar").attr("src", mySrc);
+                $("#avatar").load(function () {
+                    var a_w = $(this).width();
+                    var a_h = $(this).height();
+                    var shard_w = 320;
+                    var shard_h = 240;
+                    if (a_h < 240) {
+                        shard_h = a_h;
+                        shard_w = parseInt(shard_h / 3 * 4);
+                        $("#avatar1").css("height", "100%");
+                    } else {
+                        $("#avatar1").css("width", "100%");
+                    }
+                    var scale = document.getElementById('avatar').naturalWidth / 320;
+                    $("#id_width").val(shard_w * scale);
+                    $("#id_height").val(shard_h * scale);
+                    //直接执行的话，框会偏移
+                    setTimeout(function () {
+                        if (image_select) {
+                            $(".imgareaselect-selection").parent().css("z-index", "1989100018");
+                            image_select.setSelection(0, 0, shard_w, shard_h, true);
+                            image_select.setOptions({ show: true });
+                            image_select.update();
+                        } else {
+                            image_select = $('img#avatar').imgAreaSelect({
+                                aspectRatio: "4:3",
+                                x1: 0,
+                                y1: 0,
+                                x2: shard_w,
+                                y2: shard_h,
+                                instance: true,
+                                handles: true,
+                                onSelectEnd: function (img, selection) {
+                                    var scale = document.getElementById('avatar').naturalWidth / 320;
+                                    $('#id_top').val(parseInt(selection.y1 * scale));
+                                    $('#id_left').val(parseInt(selection.x1 * scale));
+                                    $('#id_width').val(parseInt(selection.width * scale));
+                                    $('#id_height').val(parseInt(selection.height * scale));
+                                },
+                                onSelectChange: preview2
+                            });
+                        }
+                    }, 300);
+
+                });
+            }
+            //上传修改图片
+            $scope.shearHeadImage = function () {
+                var mainImg = "";
+                if (!isEdit) {
+                    mainImg = $("#up_cut")[0].files[0];
+                } else {
+                    mainImg = $("#edit_cut")[0].files[0];
+                }
+                if (!mainImg) {
+                    layer.msg("上传失败，请重新选择文件");
+                    $scope.closePopWindow();
+                    return false;
+                }
+                var _form = document.getElementById("shearImage");
+                var formdata = new FormData(_form);
+                formdata.append('img', mainImg);
+                $.ajax({
+                    type: 'post',
+                    url: "/Common/CropImage",
+                    data: formdata,
+                    dataType: 'JSON',
+                    cache: false,
+                    processData: false,//必选
+                    contentType: false,//必选
+                    success: function (data) {
+                        if (data.Success) {
+                            $scope.articleData.FocusImageUrl = data.Data;//焦点图
+                            $scope.isUploadMain = true; //预览焦点图
+                            $scope.$apply();
+                            if (isEdit) {
+                                clearInputFile(document.getElementById("edit_cut"));
+                            }
+                        }
+                        $scope.closePopWindow();
+                    },
+                    error: function (XmlHttpRequest, textStatus, errorThrown) {
+                        console.log('error')
+                    }
+                })
+            }
+            $scope.closePopWindow = function () {
+                if (image_select) {
+                    image_select.cancelSelection();
+                    // image_select = "";
+                }
+                layer.closeAll();
+            }
+            //删除焦点图
+            $scope.deleteMainImg = function () {
+                layer.confirm('您真的确定要删除吗？删除后无法恢复，请三思！', {
+                    btn: ['取消', '确定']
+                }, function (index) {
+                    layer.close(index);
+                }, function (index) {
+                    $scope.articleData.mainImg = '';
+                    $scope.isUploadMain = false;
+                    $scope.$apply();
+                });
+            }
+            //添加文本的方法
+            $scope.addText = function (insertFlag, index) {
+                var obj = {
+                    type: 'text',
+                    content: '',
+                }
+                if (insertFlag) { //插入数据
+                    $scope.article.splice(index + 1, 0, obj)
+                } else {
+                    $scope.article.push(obj)
+                }
+            }
+            //添加图片的方法
+            $scope.uploadImg = function (ele, insertFlag, index, type) {
+                var index = layer.load(1, {
+                    shade: [0.1, '#fff'] //0.1透明度的白色背景
+                });
+                $(".typeimg").addClass('hide'); //默认隐藏
+                $(".typevideo").addClass('hide');
+                var objImg = ele.files[0];
+                if (type == 'img') {
+                    if (objImg.size / 1024 > 10 * 1024) { //判断文件大小
+                        $(".typeimg").removeClass('hide')
+                        layer.open({
+                            type: 1,
+                            closeBtn: 0, //不显示关闭按钮
+                            shadeClose: true,//开启遮罩关闭
+                            move: false, //禁止拖拽
+                            content: $('#tipsImgSize'),
+                        });
+                        return false;
+                    }
+                } else {
+                    if (objImg.size / 1024 > 10 * 1024) { //判断文件大小
+                        $(".typevideo").removeClass('hide')
+                        layer.open({
+                            type: 1,
+                            closeBtn: 0, //不显示关闭按钮
+                            shadeClose: true,//开启遮罩关闭
+                            move: false, //禁止拖拽
+                            content: $('#tipsImgSize'),
+                        });
+                        return false;
+                    }
+                }
+                //上传文件
+                var formdata = new FormData();
+                formdata.append('uploadType', 'activity')
+                formdata.append('headimg', objImg)
+                $.ajax({
+                    url: '/Common/Upload',
+                    type: 'POST',
+                    data: formdata,
+                    dataType: 'JSON',
+                    cache: false,
+                    processData: false,//必选
+                    contentType: false,//必选
+                    success: function (data) {
+                        $scope.closePopWindow();//关闭
+                        if (data.Success) {
+                            if (type == 'img') {
+                                obj = {
+                                    type: 'img',
+                                    content: '',
+                                    imgUrl: data.Data,
+                                }
+                            } else {
+                                obj = {
+                                    type: 'video',
+                                    content: '',
+                                    videoUrl: data.Data,
+                                }
+                            }
+                            if (insertFlag) { //插入数据
+                                $scope.article.splice(index + 1, 0, obj)
+                            } else {
+                                $scope.article.push(obj)
+                            }
+                            $scope.$apply();
+                        } else {
+                            layer.msg(data.Message)
+                        }
+                    }
+                })
+            }
+            //删除模块
+            $scope.deleteData = function (flag) {
+                layer.confirm('您真的确定要删除吗？删除后无法恢复，请三思！', {
+                    btn: ['取消', '确定']
+                }, function (index) {
+                    layer.close(index);
+                }, function (index) {
+                    $scope.article.splice(flag, 1)
+                    $scope.$apply()
+                });
+            }
+            //点击缩略图跳转相应位置
+            $scope.goScroll = function (index) {
+                var id = '#model' + (index + 1)
+                var topH = $(id).offset().top;
+                $("body,html").animate({ scrollTop: topH }, 500)
+            }
+            //拖拽排序页面
+            $scope.toggleSortPage = function () {
+                $scope.sortPage = !$scope.sortPage;
+            }
+            $scope.setExchange = function (start, end) {
+                var a = $scope.article[end];
+                $scope.article.splice(end, 1, $scope.article[start]);
+                $scope.article.splice(start, 1, a);
+            }
+            //拖拽的方法
+            $scope.sortableOptions = {
+                placeholder: "ui-state-highlight",
+                opacity: 0.7,
+                helper: 'clone',
+                sort: function (event, ui) {
+                    $(".ui-sortable-helper").css({
+                        'height': '87px',
+                        'width': '126px',
+                        'border': '1px solid #eb6100'
+                    });
+                },
+                update: function (e, ui) {
+
+                },
+                // 完成拖拽动作
+                stop: function (e, ui) {
+
+                }
+            }
+            //预览页面
+            $scope.toggleViewPage = function () {
+                $scope.viewPage = !$scope.viewPage;
+            }
+            //获取详情HTML
+            $scope.getDetailHtml = function () {
+                var html = '';
+                angular.forEach($scope.article, function (item, index) {
+                    if (item.type == 'text') {
+                        html += '<div><p>' + item.content + '</p></div>'
+                    } else if (item.type == 'img') {
+                        html += '<div class="img"><div><img src="' + item.imgUrl + '" /><p>' + item.content + '</p></div></div>'
+                    } else if (item.type == 'video') {
+                        html += "<div><video width='530' height='300' controls='controls'>"
+                            + "<source src='" + item.videoUrl + "'></source></video>"
+                            + "<p>" + item.content + "<p></div>"
+                    }
+                })
+                return html;
+                //		$scope.articleData.Content = html;
+            }
+            //提交表单
+            $scope.sumbitData = function () {
+                //获取详情内容
+                $scope.articleData.Content = $scope.getDetailHtml($scope.article);
+                $scope.articleData.TagName = $scope.tip.tipsList.join();
+                if (!$scope.articleData.Title) {
+                    layer.msg('请输入文章主标题')
+                    return false;
+                } if (!$scope.articleData.MainTitle) {
+                    layer.msg('请输入文章副标题')
+                    return false;
+                } else if (!$scope.articleData.TagName) {
+                    layer.msg('请输入您的文章标签')
+                    return false;
+                } else if (!$scope.articleData.FocusImageUrl) {
+                    layer.msg('请上传活动焦点图')
+                    return false;
+                }
+                //判断文章详情是否为空
+                else if ($scope.articleData.Content == "" || $scope.articleData.Content == "<div><p></p></div>") {
+                    layer.msg('请输入文章内容')
+                    return false;
+                }
+                var index = layer.load(1, {
+                    shade: [0.1, '#fff'] //0.1透明度的白色背景
+                });
+                $http({
+                    method: 'POST',
+                    url: '/api/UserCenter/CreateArticle',
+                    data: $scope.articleData,
+                }).then(function (response) {
+                    layer.closeAll('loading');//关闭loading
+                    if (response.data.Success) {
+                        layer.msg('提交成功')
+                        window.location.href = "/UserCenter/index.html#/content/article"
+                    } else {
+                        layer.msg(response.data.Message)
+                    }
+                })
+            }
+            //过滤文章内容HTML
+            $scope.formatHtml = function (data) {
+                if (data) {
+                    $scope.article = new Array()
+                } else {
+                    return false;
+                }
+                var obj = {}
+                dataContent = data.replace(/(<\/div>)/g, '');//将</div>替换为空
+                htmlList = dataContent.split('<div>');
+                htmlList.splice(0, 1);//删除第一个空的数据
+                debugger
+                angular.forEach(htmlList, function (item, i) {
+                    if (item.indexOf('<img') > -1) {
+                        item = item.replace(/(<\/p>)/g, '');//去掉闭合标签
+                        item = item.replace(/(\/>)/g, '');//去掉闭合标签
+                        item = item.replace(/(<img src=)/g, '');//去掉img标签
+                        itemObj = item.split('<p>')
+                        obj = {
+                            type: 'img',//类型 text,img,video
+                            content: itemObj[1],//正文内容
+                            imgUrl: itemObj[0].slice(1, itemObj[0].length - 2),//图片url
+                        }
+                        $scope.article.push(obj)
+                    } else if (item.indexOf('<video') > -1) {
+                        item = item.replace(/(<\/p>)/g, '');//去掉闭合标签
+                        item = item.replace(/(<\/source><\/video>)/g, '');//去掉闭合标签
+                        item = item.replace(/(<video width='530' height='300' controls='controls'><source src=')/g, '');//去掉video标签
+                        itemObj = item.split('<p>')
+                        obj = {
+                            type: 'video', //类型 text,img,video
+                            content: itemObj[1], //正文内容
+                            videoUrl: itemObj[0].slice(0, itemObj[0].length - 2), //视频url
+                        }
+                        $scope.article.push(obj)
+                    } else {
+                        item = item.replace(/(<\/p>)/g, '');//去掉闭合标签
+                        itemObj = item.split('<p>')
+                        obj = {
+                            type: 'text',//类型 text,img,video
+                            content: itemObj[1],//正文内容
+                        }
+                        $scope.article.push(obj)
+                    }
+                    console.log($scope.article)
+                })
+
+            }
+            //编辑文章
+            if ($scope.articleId != 0) {
+                $scope.isEdit = true;
+                //获取该文章的详情
+                $http({
+                    method: 'post',
+                    async: false,
+                    url: '/api/UserCenter/GetMyArticleDetail',
+                    data: { articleId: $scope.articleId }
+                }).then(function (response) {
+                    if (response.data.Success) {
+                        $scope.articleData = response.data.Data;
+                        $scope.articleData.ArticleId = $scope.articleId;//传入articleId
+                        $scope.tip.tipsList = $scope.articleData.TagName.split(',');//标签列表
+                        //为已有的选中的标签添加active
+                        angular.forEach($scope.tip.myTipsList, function (item, i) {
+                            angular.forEach($scope.tip.tipsList, function (_item, _i) {
+                                if (item.TagName == _item) {
+                                    $scope.tip.myTipsList[i].isChecked = true
+                                }
+                            })
+                        })
+                        //获取文章内容
+                        $scope.formatHtml(response.data.Data.Content);//过滤数据
+                    } else {
+                        layer.msg(response.data.Message)
+                        window.location.href = "/UserCenter/index.html#/content/article"
+                    }
+                })
+            } else { $scope.isEdit = false; }
+        });
+    </script>
+
+
+</head>
+
+<body>
+    <div ng-app="Article" ng-controller="ArticleCtrl">
+        <div class="subject-rg fr">
+            <div class="system-msg pub-activity pub-article" ng-if="!sortPage &&!viewPage">
+                <h2 class="msg-name">
+                    发布文章
+                    <a class="btn-back fr" ui-sref="content.article">返回</a>
+                </h2>
+                <div class="pub-content">
+                    <div class="input-box">
+                        <label><em>*</em>主标题：</label>
+                        <!--onblur="angular.element(this).scope().isDataEmpty(angular.element(this).val(),this)"-->
+                        <input type="text" class="theme" ng-model="articleData.Title" maxlength="15" />
+                        <em class="error-tips hide"><i class="icon-error"></i>请填写你的主标题</em>
+                        <span class="ml10 f14 fc999">最多可输入15个字符</span>
+                    </div>
+
+                    <!-- 注释标签
+                        <div class="input-box add-tips">
+                        <label><em>*</em>标签：</label>
+                        <input type="text" ng-model="tip.customTips" />
+                        <button class="btn-submit" type="button" ng-click="addMyTips()">添加自定义标签</button>
+                        <span class="ml10 f14 fc999">标签可自定义添加多个，每篇文章最多使用三个标签</span>
+                    </div>
+                    <div class="input-box tip-box">
+                        <div class="ml100">
+                            <ul class="tops-list" id="myTipList">
+                                <li ng-repeat="x in tip.myTipsList track by $index" ng-class="x.isChecked == true ? 'active' :''">
+                                    <span ng-click="selectTips($index,x.TagName)">{{x.TagName}}</span>
+                                    <em></em>
+                                </li>
+                            </ul>
+                            <ul class="tops-list">
+                                <li class="" ng-repeat="x in tip.tipsList">
+                                    <span>{{x}}</span>
+                                    <em><i ng-click="delectTips(x,$index)"></i></em>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>-->
+                    <div class="input-box overflow-h ml5">
+                        <label class="fl"><em>*</em>焦点图：</label>
+                        <div class="upload-box fl pr" ng-if="!isUploadMain && !isEdit">
+                            <p class="icon-puls fc999">
+                                <input type="file" id="up_cut" accept="image/jpeg,image/jpg,image/png" onchange="angular.element(this).scope().changeMainImg(this,false)" />
+                            </p>
+                            <p class="f16 fc999">添加焦点图 </p>
+                            <p class="f12 fc999 mt10">支持jpg／png格式RBG模式，</br>不超过10M </p>
+                        </div>
+                        <div class="main-img pr fl" ng-if="isUploadMain || isEdit">
+                            <img ng-src="{{articleData.FocusImageUrl}}" />
+                            <div class="pa icon-groups">
+                                <i class="icon-changeimg"></i>
+                                <i class="icon-deleteimg" ng-click="deleteMainImg()"></i>
+                                <input class="change-upload pa" type="file" id="edit_cut" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" onchange="angular.element(this).scope().changeMainImg(this,true)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-box act-editor mt10 overflow-h">
+                        <div class="edit-con fl ml90">
+                            <div class="title overflow-h">
+                                <div class="btn-groups fl">
+                                    <a href="javascript:;" class="btn-text mr10" ng-click="addText(false,'')">
+                                        <i></i>添加文本
+                                    </a>
+                                    <a href="javascript:;" class="btn-img mr10">
+                                        <i></i>添加图片
+                                        <input type="file" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" onchange="angular.element(this).scope().uploadImg(this,false,angular.element(this).index(),'img')" />
+                                    </a>
+                                </div>
+                                <p class="fl f12 ml10 mr15 fc999">点击左侧，添加相对应的元素模块  </p>
+                            </div>
+                            <ul class="edit-list">
+                                <li ng-repeat="x in article track by $index" id="model{{$index +1}}">
+                                    <div class="box">
+                                        <p class="handle"><i class="icon-close fr" ng-click="deleteData($index)"></i></p>
+                                        <div class="text-box" ng-if="x.type =='text'">
+                                            <textarea maxlength="500" placeholder="请输入内容" ng-model="x.content"></textarea>
+                                            <p class="tr f14 fc999 mt5 mb5 mr10"><span class="fcf07c00">{{x.content.length}}</span>/500</p>
+                                        </div>
+                                        <div class="img-box" ng-if="x.type =='img'">
+                                            <div class="img-bg">
+                                                <img ng-src="{{x.imgUrl}}" />
+                                            </div>
+                                            <div class="text-bg">
+                                                <textarea placeholder="请输入内容" maxlength="40" ng-model="x.content"></textarea>
+                                                <p class="tr f14 fc999 mt5 mb5 mr10"><span class="fcf07c00">{{x.content.length}}</span>/40</p>
+                                            </div>
+                                        </div>
+                                        <!--<div class="img-box" ng-if="x.type == 'video'">
+                                            <video width='530' height='300' controls='controls'>
+                                                <source ng-src="{{x.videoUrl | res_trusted}}"></source>
+                                            </video>
+                                            <textarea placeholder="请输入视频描述" maxlength="50" placeholder="请输入内容" ng-model="x.content"></textarea>
+                                            <p class="tr f14 fc999 mt10 mb10 mr10"><span class="fcf07c00">{{x.content.length}}</span>/50</p>
+                                        </div>-->
+                                    </div>
+                                    <div class="add-box mt15 overflow-h">
+                                        <i class="icon-add-push fl" add-insert-btn></i>
+                                        <div class="btn-groups fl hide">
+                                            <a href="javascript:;" class="btn-text mr10" ng-click="addText(true,$index)">
+                                                <i></i>添加文本
+                                            </a>
+                                            <a href="javascript:;" class="btn-img mr10">
+                                                <i></i>添加图片
+                                                <input type="file" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" onchange="angular.element(this).scope().uploadImg(this,true,angular.element(this).index(),'img')" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="edit-side fr pr">
+                            <h3 class="f16 fc333">调整顺序</h3>
+                            <p class="mt20 f12 fc999">可以让您更快速的给文字、图片 进行排序</p>
+                            <ul class="order-list">
+                                <li ng-repeat="x in article track by $index" ng-click="goScroll($index)">
+                                    <img ng-if="x.type == 'text'" ng-src="{{configPort.staticFile}}/web/Content_/img/text_img.jpg" />
+                                    <img ng-if="x.type == 'img'" ng-src="{{x.imgUrl}}" />
+                                    <img ng-if="x.type == 'video'" ng-src="{{configPort.staticFile}}/web/Content_/img/video_img.jpg" />
+                                    <em>{{$index+1}}</em>
+                                </li>
+                                <h5 ng-if="activity.length == 0" class="tc f16 fc999 mt120">尚未添加内容</h5>
+                            </ul>
+                            <div class="btn-opea pa">
+                                <a class="bg-orange" ng-click="toggleViewPage()">点击预览</a>
+                                <a ng-click="toggleSortPage()">调整顺序</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-submit" type="button" ng-click="sumbitData()">提交审核</button>
+            </div>
+            <!--end 发布内容-->
+            <div class="system-msg pub-activity sort-box" ng-if="sortPage">
+                <h2 class="msg-name">
+                    调整顺序
+                    <a class="btn-back fr" ng-click="toggleSortPage()">保存</a>
+                    <a class="btn-back btn-white fr" ng-click="toggleSortPage()">返回</a>
+                </h2>
+                <p class="ml30 mt15 f16 fc333">拖拽即可调整文字 、照片顺序</p>
+                <ul class="order-list" ui-sortable="sortableOptions" ng-model="article">
+                    <li ng-repeat="x in article track by $index">
+                        <img ng-if="x.type == 'text'" ng-src="{{configPort.staticFile}}/web/Content_/img/text_img.jpg" />
+                        <img ng-if="x.type == 'img'" ng-src="{{x.imgUrl}}" />
+                        <img ng-if="x.type == 'video'" ng-src="{{configPort.staticFile}}/web/Content_/img/video_img.jpg" />
+                        <em>{{$index+1}}</em>
+                        <i class="icon-del" ng-click="deleteData($index)"></i>
+                        <p class="tip-text overflow-h">{{x.content}}</p>
+                    </li>
+                </ul>
+            </div>
+            <!--end 拖拽排序页面-->
+            <div class="system-msg pub-activity sort-box" ng-if="viewPage">
+                <h2 class="msg-name">
+                    预览
+                    <a class="btn-back fr" ng-click="toggleViewPage()">返回</a>
+                </h2>
+                <div class="view-content">
+                    <h3 class="tc fc333">{{articleData.Title}}</h3>
+                    <div ng-repeat="x in article">
+                        <div ng-if="x.type=='text'">
+                            <p>{{x.content}}</p>
+                        </div>
+                        <div ng-if="x.type=='img'" class="tc img">
+                            <div>
+                                <img ng-src="{{x.imgUrl}}" />
+                                <p>{{x.content}}</p>
+                            </div>
+                        </div>
+                        <!--<div ng-if="x.type=='video'" class="tc">
+                            <video width='530' height='300' controls='controls'>
+                                <source ng-src="{{x.videoUrl | trusted}}">
+                            </video>
+                            <p>{{x.content}}</p>
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+            <!--end 预览页面-->
+        </div>
+        <div class="pop-window" id="tipsImgSize">
+            <div class="title pr">
+                <span class="typeimg hide">添加图片</span>
+                <span class="typevideo hide">添加视频</span>
+                <i class="icon-closepop pa" ng-click="closePopWindow()"></i>
+            </div>
+            <div class="tips-imgsize">
+                <i></i>
+                <p class="fc333 f14 tc pb50 typeimg hide">图片大小不超过10M</p>
+                4
+                <p class="fc333 f14 tc pb50 typevideo hide">视频大小不超过100M</p>
+            </div>
+            <div class="pop-botton-btn">
+                <p class="pt20"></p>
+                <button type="button" class="orange" ng-click="closePopWindow()">确定</button>
+            </div>
+        </div>
+        <div class="pop-window" id="editHeadImg">
+            <div class="title pr">
+                <span>图片剪裁</span>
+                <i class="icon-closepop pa" ng-click="closePopWindow()"></i>
+            </div>
+            <div class="pop-content mt30 ml50 mb30">
+                <div class="cut">
+                    <div id="picture" class="scale_4"><img id="avatar"></div>
+                </div>
+                <div class="preview">
+                    <div id="img_big_preview" class="scale_4">
+                        <img id="avatar1" />
+                    </div>
+                    <p>预览</p>
+                </div>
+                <form id="shearImage" method="post" enctype="multipart/form-data" style="display: none">
+                    <input type="text" name="x1" id="id_left" value="0" />
+                    <input type="text" name="y1" id="id_top" value="0" />
+                    <input type="text" name="width" id="id_width" value="320" />
+                    <input type="text" name="height" id="id_height" value="240" />
+                    <input type="text" name="uploadType" value="article" />
+                </form>
+            </div>
+            <div class="pop-botton-btn">
+                <button type="button" class="orange" ng-click="shearHeadImage()">确定</button>
+                <button type="button" class="white ml60" ng-click="closePopWindow()">取消</button>
+            </div>
+        </div>
+        <!--end 文件提示框-->
+        <script>
+            //拖拽的方法
+            function allowDrop(ev) {
+                ev.preventDefault();
+            }
+            function drag(ev, divdom) {
+                var startIndex = ev.path[1].getAttribute("data-sort");
+                ev.dataTransfer.setData("order", startIndex);
+            }
+            function drop(ev, divdom) {
+                ev.preventDefault();
+                if (divdom != null) {
+                    var endIndex = divdom.getAttribute("data-sort") - 1;
+                    var startIndex = ev.dataTransfer.getData("order") - 1;
+                    var scope = angular.element('#sort1').scope();
+                    scope.setExchange(startIndex, endIndex);
+                    scope.$apply();
+                }
+            }
+                            //$(function () {
+                            //    var editSideH = $(".act-editor").offset().top;
+                            //    $(window).scroll(function () {
+                            //        //获取滚动条的滑动距离
+                            //        var scroH = $(this).scrollTop();
+                            //        //滚动条的滑动距离大于等于定位元素距离浏览器顶部的距离，就固定，反之就不固定
+                            //        if (scroH >= editSideH) {
+                            //            $(".edit-side").css({ "position": "fixed", "top": "0", 'right': '50%', 'margin-right': '-560px', 'z-index': '9', 'width': '230px' });
+                            //        } else {
+                            //            $(".edit-side").css({ "position": "absolute", 'right': '0', 'margin-right': '0', });
+                            //        }
+                            //    })
+                            //})
+        </script>
+
+
+    </div>
+</body>
+</html>

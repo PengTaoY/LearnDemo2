@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AngularJS之过滤器</title>
+    <script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular.min.js"></script>
+    <script>
+        var app = angular.module("app", []);
+        app.controller("filterCon", function ($scope) {
+            $scope.username = "Hello World!";
+        });
+
+    </script>
+
+</head>
+<body>
+    <div ng-app="app" ng-controller="filterCon">
+        <input type="text" ng-model="username" /><br><br>
+        姓名：{{username | uppercase}}<br><br>
+    </div>
+</body>
+</html>

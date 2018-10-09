@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2043
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginDemo", "LoginDemo\LoginDemo.csproj", "{CBA6E060-FD2B-4665-B6E6-0C4B0E85BB0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoginDemo", "LoginDemo\LoginDemo.csproj", "{CBA6E060-FD2B-4665-B6E6-0C4B0E85BB0C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoginDemo2", "LoginDemo2\LoginDemo2.csproj", "{7195F72B-CED9-4195-A1EC-30BF0B51EDA1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{DED69DBD-54CC-42F0-AC51-2F8D37AB750D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AngularWebApp", "AngularWebApp\AngularWebApp.csproj", "{DD88BCC0-12FA-4363-A43B-515A643F790F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AngularWebApp2", "AngularWebApp2\AngularWebApp2.csproj", "{1D52C20C-9F9F-4B4E-82DB-3F735E522507}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rabbit", "Rabbit\Rabbit.csproj", "{11B26E31-9FAD-429F-88D1-298040C6B97A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisDemo", "RedisDemo\RedisDemo.csproj", "{C00E2957-5311-4552-95D2-FE97E99CA703}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +27,30 @@ Global
 		{CBA6E060-FD2B-4665-B6E6-0C4B0E85BB0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBA6E060-FD2B-4665-B6E6-0C4B0E85BB0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBA6E060-FD2B-4665-B6E6-0C4B0E85BB0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7195F72B-CED9-4195-A1EC-30BF0B51EDA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7195F72B-CED9-4195-A1EC-30BF0B51EDA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7195F72B-CED9-4195-A1EC-30BF0B51EDA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7195F72B-CED9-4195-A1EC-30BF0B51EDA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DED69DBD-54CC-42F0-AC51-2F8D37AB750D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DED69DBD-54CC-42F0-AC51-2F8D37AB750D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DED69DBD-54CC-42F0-AC51-2F8D37AB750D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DED69DBD-54CC-42F0-AC51-2F8D37AB750D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD88BCC0-12FA-4363-A43B-515A643F790F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD88BCC0-12FA-4363-A43B-515A643F790F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD88BCC0-12FA-4363-A43B-515A643F790F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD88BCC0-12FA-4363-A43B-515A643F790F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D52C20C-9F9F-4B4E-82DB-3F735E522507}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D52C20C-9F9F-4B4E-82DB-3F735E522507}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D52C20C-9F9F-4B4E-82DB-3F735E522507}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D52C20C-9F9F-4B4E-82DB-3F735E522507}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11B26E31-9FAD-429F-88D1-298040C6B97A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11B26E31-9FAD-429F-88D1-298040C6B97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11B26E31-9FAD-429F-88D1-298040C6B97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11B26E31-9FAD-429F-88D1-298040C6B97A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C00E2957-5311-4552-95D2-FE97E99CA703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C00E2957-5311-4552-95D2-FE97E99CA703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C00E2957-5311-4552-95D2-FE97E99CA703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C00E2957-5311-4552-95D2-FE97E99CA703}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
