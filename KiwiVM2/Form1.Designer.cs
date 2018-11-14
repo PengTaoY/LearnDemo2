@@ -196,6 +196,7 @@
             // 
             this.txt_APIKEY.Location = new System.Drawing.Point(91, 48);
             this.txt_APIKEY.Name = "txt_APIKEY";
+            this.txt_APIKEY.PasswordChar = '*';
             this.txt_APIKEY.Size = new System.Drawing.Size(226, 21);
             this.txt_APIKEY.TabIndex = 6;
             // 

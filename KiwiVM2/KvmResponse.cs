@@ -5,53 +5,49 @@ namespace KiwiVM2
 {
     public class KvmResponse
     {
-        //"vm_type":"kvm",  
         public string vm_type { get; set; }
-        //"hostname":"localhost.localdomain",
-        public string hostname { get; set; }
-        //"node_ip":"104.36.185.124",
-        public string node_ip { get; set; }
-        //"node_alias":"v7524",
-        public string node_alias { get; set; }
-        //"node_location":"US, California",
-        public string node_location { get; set; }
-        //"node_location_id":"USCA_2",
-        public string node_location_id { get; set; }
-        //"node_datacenter":"US: Los Angeles, California (DC2 QNET)",
-        public string node_datacenter { get; set; }
-        //"location_ipv6_ready":false,
-        public bool location_ipv6_ready { get; set; }
-        //"plan":"kvmv2-10g",
-        public string plan { get; set; }
-        //"plan_monthly_data":590558003200,
-        public double plan_monthly_data { get; set; }
-        //"monthly_data_multiplier":1,
-        public int monthly_data_multiplier { get; set; }
-        //"plan_disk":11811160064,
-        public double plan_disk { get; set; }
-        //"plan_ram":536870912,
-        public double plan_ram { get; set; }
-        //"plan_swap":0,
-        public double plan_swap { get; set; }
-        //"plan_max_ipv6s":0,
-        public double plan_max_ipv6s { get; set; }
-        //"os":"centos-6-x86-bbr",
-        public string os { get; set; }
-        //"email":"810618778@qq.com",
-        public string email { get; set; }
-        //"data_counter":11851835026,
-        public double data_counter { get; set; }
-        //"data_next_reset":1542632613,
-        public double data_next_reset { get; set; }
-        //"ip_addresses":["74.82.194.253"],
-        public IEnumerable<string> ip_addresses { get; set; }
-        //"rdns_api_available":true,
-        public bool rdns_api_available { get; set; }
-        //"ptr":{"74.82.194.253":null},
 
-        //"suspended":false,
+        public string hostname { get; set; }
+
+        public string node_ip { get; set; }
+
+        public string node_alias { get; set; }
+
+        public string node_location { get; set; }
+
+        public string node_location_id { get; set; }
+
+        public string node_datacenter { get; set; }
+
+        public bool location_ipv6_ready { get; set; }
+
+        public string plan { get; set; }
+
+        public double plan_monthly_data { get; set; }
+
+        public int monthly_data_multiplier { get; set; }
+
+        public double plan_disk { get; set; }
+
+        public double plan_ram { get; set; }
+
+        public double plan_swap { get; set; }
+
+        public double plan_max_ipv6s { get; set; }
+
+        public string os { get; set; }
+
+        public string email { get; set; }
+
+        public double data_counter { get; set; }
+
+        public double data_next_reset { get; set; }
+
+        public IEnumerable<string> ip_addresses { get; set; }
+
+        public bool rdns_api_available { get; set; }
+
         public bool suspended { get; set; }
-        //"error":0
 
         public int error { get; set; }
 

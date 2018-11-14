@@ -51,7 +51,6 @@ namespace KiwiVM2
                 {
                     if (model.error == 0)
                     {
-                        // groupBox1.Text = model.hostname + " " + model.vm_type;
                         lb_PhysicalLocation.Text = model.node_location + "   " + model.node_alias;
                         lb_IPAddress.Text = model.node_ip;
                         lb_RAM.Text = model.BitToMB(model.plan_ram) + " MB";
