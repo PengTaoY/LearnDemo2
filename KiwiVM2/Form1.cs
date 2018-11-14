@@ -93,6 +93,64 @@ namespace KiwiVM2
             lb_PhysicalLocation.Text = string.Empty;
             lb_RAM.Text = string.Empty;
             progressBar1.Value = 0;
+            lb_message.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// 重启VPS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Restart_Click(object sender, EventArgs e)
+        {
+            lb_message.Text = string.Empty;
+            if (string.IsNullOrEmpty(txt_VEID.Text.Trim()))
+            {
+                lb_message.Text = "请输入VEID";
+                txt_VEID.Focus();
+                return;
+            }
+            if (string.IsNullOrEmpty(txt_APIKEY.Text.Trim()))
+            {
+                lb_message.Text = "请输入APIKEY";
+                txt_APIKEY.Focus();
+                return;
+            }
+            if (MessageBox.Show("你确定要重启VPS？\r\n重启过程您将如法使用服务器！！！", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                string requestAddress = $"https://api.64clouds.com/v1/restart?veid={txt_VEID.Text.Trim()}&api_key={txt_APIKEY.Text.Trim()}";
+
+                WebClient client = new WebClient();
+                string result = client.DownloadString(requestAddress);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    KvmResponse model = JsonConvert.DeserializeObject<KvmResponse>(result);
+
+                    if (model != null)
+                    {
+                        if (model.error == 0)
+                        {
+                            lb_message.Text = "VPS服务器正在重启....";
+                        }
+                        else if (model.error == 700005)
+                        {
+                            MessageBox.Show("用户认证失败");
+                        }
+                        else
+                        {
+                            MessageBox.Show(model.message);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("信息查询出错");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("未查询到相关信息");
+                }
+            }
         }
     }
 }
