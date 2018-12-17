@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace WebAPI1.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Values")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
@@ -19,6 +19,13 @@ namespace WebAPI1.Controllers
         public ActionResult<string> Get(int id)
         {
             return "value" + id;
+        }
+
+        [HttpGet("getTest")]
+        public Test getTest()
+        {
+
+            return new Test { };
         }
 
         // POST api/values
@@ -38,5 +45,12 @@ namespace WebAPI1.Controllers
         public void Delete(int id)
         {
         }
+    }
+
+    public class Test
+    {
+        public int id => 0;
+
+        public string name => "张三";
     }
 }

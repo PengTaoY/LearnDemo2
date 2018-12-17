@@ -20,6 +20,11 @@ namespace WebAPI1.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
+        /// <summary>
+        /// 上传文件,并返回上传后的文件在服务器中的路径
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Post([FromFile]UserFile file)
         {
             string webRootPath = _hostingEnvironment.WebRootPath;
@@ -27,11 +32,6 @@ namespace WebAPI1.Controllers
 
             if (file == null || !file.IsValid)
                 return new JsonResult(new { code = 500, message = "不允许上传的文件类型" });
-
-
-         //   string 
-
-
             string newFile = string.Empty;
             if (file != null)
                 newFile = await file.SaveAs(_hostingEnvironment.WebRootPath,"/images");
