@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebAPI1</name>
+    </assembly>
+    <members>
+        <member name="M:WebAPI1.Controllers.FileUploadTestController.Post(WebAPI1.Help.UserFile)">
+            <summary>
+            上传文件,并返回上传后的文件在服务器中的路径
+            </summary>
+            <param name="file"></param>
+            <returns></returns>
+            
+        </member>
+        <member name="M:WebAPI1.Controllers.ValuesController.Get">
+            <summary>
+            默认的
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI1.Controllers.ValuesController.getTest">
+            <summary>
+            get方法
+            </summary>
+            <returns></returns>
+            
+        </member>
+        <member name="M:WebAPI1.Controllers.ValuesController.Post(WebAPI1.Controllers.Test)">
+            <summary>
+            Post方法
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI1.Controllers.Test">
+            <summary>
+            测试类
+            </summary>
+        </member>
+        <member name="P:WebAPI1.Controllers.Test.id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:WebAPI1.Controllers.Test.name">
+            <summary>
+            名字
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -13,7 +13,7 @@ namespace WebAPI1.Help
         public string Extension { get; set; }
         public string FileType { get; set; }
 
-        private readonly static string[] Filters = { ".jpg", ".png", ".bmp" };
+        private readonly static string[] Filters = { ".jpg", ".png", ".bmp", ".xls", ".xlsx" };
         public bool IsValid => !string.IsNullOrEmpty(this.Extension) && Filters.Contains(this.Extension);
 
         private IFormFile file;

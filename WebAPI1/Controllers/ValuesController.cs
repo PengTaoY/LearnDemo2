@@ -8,19 +8,22 @@ namespace WebAPI1.Controllers
     public class ValuesController : ControllerBase
     {
         // GET api/values
-        [HttpGet]
+        /// <summary>
+        /// 默认的
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("default")]
         public ActionResult<IEnumerable<string>> Get()
         {
             return new string[] { "value1", "value2" };
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value" + id;
-        }
-
+        /// <summary>
+        /// get方法
+        /// </summary>
+        /// <returns></returns>
+        /// 
+        [ApiExplorerSettings(GroupName ="v2")]
         [HttpGet("getTest")]
         public Test getTest()
         {
@@ -28,10 +31,15 @@ namespace WebAPI1.Controllers
             return new Test { };
         }
 
-        // POST api/values
+        /// <summary>
+        /// Post方法
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public Test Post(Test value)
         {
+            return value;
         }
 
         // PUT api/values/5
@@ -47,10 +55,18 @@ namespace WebAPI1.Controllers
         }
     }
 
+    /// <summary>
+    /// 测试类
+    /// </summary>
     public class Test
     {
+        /// <summary>
+        /// Id
+        /// </summary>
         public int id => 0;
-
+        /// <summary>
+        /// 名字
+        /// </summary>
         public string name => "张三";
     }
 }
