@@ -1,9 +1,11 @@
-﻿using LearnDemo.Infrastructure;
+﻿using Aliyun.OSS;
+using LearnDemo.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using WebAPI1.Help;
 using WebAPI1.Help.Model;
@@ -71,6 +73,38 @@ namespace WebAPI1.Controllers
             var result = NPOIHelper.ExportToExcel(students, _hostingEnvironment.WebRootPath, "123.xlsx", "sheet1", "表头名称", "筛选时间：2019.1.1 - 2019.2.2");
 
             return ReturnJson.Result(true, result, "", "");
+        }
+
+        /// <summary>
+        /// 将文件上传到OSS
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="filetype"></param>
+        /// <returns></returns>
+        [HttpPost("UploadToOss")]
+        public Json<string> UploadToOss(IFormFile file, string filetype)
+        {
+            //string endPoint = "oss-cn-qingdao.aliyuncs.com";
+            string endPoint = "oss-cn-beijing.aliyuncs.com";
+            string accessKey = "";
+            string accessSecret = "";
+            var client = new OssClient(endPoint, accessKey, accessSecret);
+
+            //string bucketName = "test-ethingnewsimg";
+            string bucketName = "lexus-applycar-test";
+            string fileName = Guid.NewGuid().ToString();
+
+            string extension = Path.GetExtension(file.FileName);
+
+            string fileName1 = Path.GetFileNameWithoutExtension(file.FileName);
+
+            string key = Guid.NewGuid().ToString() + "/" + file.FileName;
+
+            var result = client.PutObject(bucketName, key, file.OpenReadStream());
+
+            //bool s = client.DoesObjectExist(bucketName, file.FileName);
+
+            return new Json<string> { data = $"http://{bucketName}.{endPoint}/{key}", success = true };
         }
 
     }
